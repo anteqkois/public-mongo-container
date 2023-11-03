@@ -1,24 +1,26 @@
 version: "3"
 
 services:
-  app:
-    # image: mongodb-app
-    # container_name: mongodb-app
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    command: npx ts-node -T src/index.ts
+  # app:
+  #   # image: mongodb-app
+  #   # container_name: mongodb-app
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - .env
+  #   command: npx ts-node -T src/index.ts
   mongodb:
     image: mongo:4.2.8-bionic
     volumes:
       - ./raw_db:/data/db
+      # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
       - 27017:27017
-    # environment: 
-      # - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
-      # - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS}
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER_ROOT}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS_ROOT}
+    command: ["--auth"]
     logging:
       driver: "json-file"
       options:
