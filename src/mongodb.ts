@@ -2,11 +2,11 @@ import 'dotenv/config';
 import { Db, MongoClient } from 'mongodb';
 
 const db_is_srv = false ? '+srv' : ''
-const db_auth = true ? `${process.env.DB_USER}:${process.env.DB_PASS}@`:''
+const db_auth = true ? `${process.env.DB_USER}:${process.env.DB_USER_PASS}@`:''
 const db_name = 'on_chain_data'
 const db_host = process.env.DB_HOST
 
-let dbUrl = `mongodb${db_is_srv}://${db_auth}${db_host}/${db_name}?retryWrites=true&w=majority`
+let dbUrl = `mongodb${db_is_srv}://${db_auth}${db_host}/${db_name}?replicaSet=rsMain&directConnection=true&retryWrites=true&w=majority`
 console.log('DATABASE URL', dbUrl);
 
 if (process.env.NODE_ENV === 'test') {

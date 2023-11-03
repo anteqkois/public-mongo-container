@@ -1,32 +1,69 @@
 version: "3"
 
 services:
-  # app:
-  #   # image: mongodb-app
-  #   # container_name: mongodb-app
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - .env
-  #   command: npx ts-node -T src/index.ts
   mongodb:
     image: mongo:4.2.8-bionic
     volumes:
       - ./raw_db:/data/db
-      # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongo:/etc/mongo
     ports:
       - 27017:27017
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${DB_USER_ROOT}
-      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS_ROOT}
-    command: ["--auth"]
-    logging:
-      driver: "json-file"
-      options:
-        max-size: 100m
-        max-file: "3"
+    expose:
+      - 27017
     restart: unless-stopped
+    command: ["--config", "/etc/mongo/mongod.conf"]
+  mongodb2:
+    image: mongo:4.2.8-bionic
+    volumes:
+      - ./raw_db_2:/data/db
+      - ./mongo:/etc/mongo
+    ports:
+      - 27018:27017
+    command: ["--config", "/etc/mongo/mongod.conf"]
+    restart: unless-stopped
+  mongodb3:
+    image: mongo:4.2.8-bionic
+    volumes:
+      - ./raw_db_3:/data/db
+      - ./mongo:/etc/mongo
+    ports:
+      - 27019:27017
+    command: ["--config", "/etc/mongo/mongod.conf"]
+    restart: unless-stopped
+
+  # container to initialize replica set
+  mongoinit:
+    image: mongo:4.2.8-bionic
+    # this container will exit after executing the command
+    restart: "no"
+    depends_on:
+      - mongodb
+      - mongodb2
+      - mongodb3
+    command: >
+      sleep 5 &&
+      mongo --host mongodb:27017 -u ${DB_ADMIN} -p ${DB_ADMIN_PASS} --authenticationDatabase admin --eval
+      '
+      config = {
+      "_id" : "rsMain",
+      "members" : [
+        {
+          "_id" : 0,
+          "host" : "mongodb:27017"
+        },
+        {
+          "_id" : 1,
+          "host" : "mongodb2:27017"
+        },
+        {
+          "_id" : 2,
+          "host" : "mongodb3:27017"
+        }
+      ]
+      };
+      rs.initiate(config);
+      '
+      && echo "Replica set initialized"
 
 networks:
   default:
