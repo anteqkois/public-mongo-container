@@ -69,3 +69,32 @@ volumes:
 ```
 
 and back to use simple env veriables and then manually enter to docker container and run the scripts to initialize replica set etc.
+
+# Helpfull docker compose config from other service
+```
+  mongodb:
+    image: mongo:5.0.5
+    container_name: mongodb
+    # environment:
+    #   MONGO_INITDB_ROOT_PASSWORD: <pass>
+    #   MONGO_INITDB_ROOT_USERNAME: admin
+    ports:
+      - 27017:27017
+    entrypoint:
+      - bash
+      - -c
+      - |
+          chmod 400 /etc/mongo/authKey
+          chown 999:999 /etc/mongo/authKey
+          exec docker-entrypoint.sh "$@"
+    command: ["mongod", "--config", "/etc/mongo/mongod.conf", "--replSet", "rs0"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+        max-file: "3"
+    volumes:
+      - ./raw_db:/data/db
+      - ./mongo_conf:/etc/mongo
+    restart: unless-stopped
+```
