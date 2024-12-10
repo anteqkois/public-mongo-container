@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  mongodb:
+    image: mongo:4.2.8-bionic
+    container_name: mongodb
+    volumes:
+      - ./raw_db_one:/data/db
+      - ./docker-entrypoint-replicaset-onedb:/docker-entrypoint-initdb.d
+      - ./mongo:/etc/mongo
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    restart: unless-stopped
+    command: ["--config", "/etc/mongo/mongod.conf"]
+    # environment:
+    #   MONGO_INITDB_DATABASE: admin
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: example
+
+networks:
+  default:
+    name: network_name

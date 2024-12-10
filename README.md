@@ -59,3 +59,13 @@ Properly connection string
 ```
 mongodb://user:password@<host>:27017/on_chain_data?replicaSet=rs0&authSource=on_chain_data
 ```
+
+### Additional warnings
+When i try to initialize databse using docker compose, the `.js` scirpt isn't run. No solution found.
+So i throw away idea to use
+```
+volumes:
+  - ./docker-entrypoint-replicaset-onedb:/docker-entrypoint-initdb.d
+```
+
+and back to use simple env veriables and then manually enter to docker container and run the scripts to initialize replica set etc.

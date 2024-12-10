@@ -8,6 +8,4 @@ coverage/
 .env.prod.build
 yarn.lock
 .env
-raw_db
-raw_db_2
-raw_db_3
+raw_db*

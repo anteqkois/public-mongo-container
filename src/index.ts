@@ -4,8 +4,7 @@ import { db } from "./mongodb";
 export const main = async () => {
   const mongo = await db();
 
-  // console.log(await mongo.collection("btc_price").findOne({}));
-  const stream = mongo.collection("btc_price").watch();
+  const stream = mongo.collection("test").watch();
   stream.on("change", (change) => {
     console.dir(change, { depth: null });
   });
